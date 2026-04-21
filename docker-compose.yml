@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  backend:
+    image: backend-image:latest
+    build:
+      context: ./backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - "5000:5000"
+
+  frontend:
+    image: frontend-image:latest
+    build:
+      context: ./frontend
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  runner:
+    image: runner-image:latest
+    build:
+      context: ./runner
+    volumes:
+      - ./runner:/app
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+
+networks:
+  default:
+    external:
+      name: my_network
